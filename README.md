@@ -30,13 +30,13 @@ Puedes instalar todos los requisitos de este proyecto mediante `pip` utilizando 
 1. Clona este repositorio en tu máquina local:
 
     ```bash
-    git clone https://github.com/tu_usuario/tu_repositorio.git
+    git clone https://github.com/luisfontalvo/Analisis_Exploratorio.git
     ```
 
 2. Navega al directorio del proyecto:
 
     ```bash
-    cd tu_repositorio
+    cd Analisis_Exploratorio
     ```
 
 3. Crea un entorno virtual (opcional pero recomendado):
