@@ -10,6 +10,31 @@ $(document).ready(function() {
     function hideLoading() {
         $('#loadingSpinner').hide();
     }
+
+    // Limpiar los datos previos y resetear la interfaz
+    function resetUI() {
+        // Limpiar la vista actual en los tabs
+        $('#dataInfo').html('');
+        $('#fullTable').html('');
+        $('#contingencyResults').html('');
+        $('#plotResults').html('');
+        $('#correlationResults').html('');
+        $('#statsResults').html('');
+
+        // Restablecer los selectores y deshabilitar los tabs de análisis
+        $("#infoSelect").prop("disabled", true);
+        $('#analysisTabs a').addClass('disabled');
+        $('#statsColumn').val('');
+        $('#contingencyCol1').val('');
+        $('#contingencyCol2').val('');
+        $('#plotXCol').val('');
+        $('#plotYCol').val('');
+        $('#plotType').val('');
+
+        // Establecer la pestaña de información básica seleccionada
+        $('#infoSelect').val('info');  // Volver a "Información básica"
+    }
+
     // Manejar el envío del formulario de carga de archivo
     $('#uploadForm').on('submit', function(e) {
         e.preventDefault();
@@ -24,7 +49,9 @@ $(document).ready(function() {
         
         formData.append('file', fileInput.files[0]);
         
+        resetUI();
         showLoading();
+
         $.ajax({
             url: '/upload',
             type: 'POST',
