@@ -1,0 +1,196 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Exploratorio de Datos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        .tab-content {
+            padding: 20px;
+        }
+        .plot-container img {
+            max-width: 100%;
+            height: auto;
+        }
+        #loadingSpinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999; /* Para asegurarse de que está por encima de otros elementos */
+        }
+    </style>
+</head>
+<body>
+    <!-- Spinner de carga -->
+    <div id="loadingSpinner" class="spinner-border text-primary" style="display: none;" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+  
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Análisis Exploratorio de Datos</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- File Upload -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="fileInput" class="form-label">Seleccionar archivo (CSV o Excel)</label>
+                        <input type="file" class="form-control" id="fileInput" accept=".csv,.xlsx,.xls" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cargar archivo</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Analysis Tabs -->
+        <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="basic-tab" data-bs-toggle="tab" href="#basic" role="tab">Información Básica</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="stats-tab" data-bs-toggle="tab" href="#stats" role="tab">Medidas de Tendencia</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="contingency-tab" data-bs-toggle="tab" href="#contingency" role="tab">Tablas de Contingencia</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="plots-tab" data-bs-toggle="tab" href="#plots" role="tab">Gráficos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="correlation-tab" data-bs-toggle="tab" href="#correlation" role="tab">Correlaciones</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="analysisTabContent">
+            <!-- Basic Information Tab -->
+            <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Información del Dataset</h4>
+                        <select id="infoSelect" class="form-select mb-3" disabled>
+                            <option value="">Seleccione una opción</option>
+                            <option value="info">Información General</option>
+                            <option value="head">Primeras Filas</option>
+                            <option value="size">Tamaño</option>
+                            <option value="nullCounts">Valores Nulos</option>
+                            <option value="columns">Cantidad de Columnas</option>
+                            <option value="allData">Mostrar Todos los Datos</option>
+                        </select>
+                    </div>
+                    <div id="dataInfo" class="col-12"></div>
+                    <div id="fullTable" class="col-12"></div>
+                </div>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div class="tab-pane fade" id="stats" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="form-select" id="statsColumn">
+                            <option value="">Seleccione una columna</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div id="statsResults"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contingency Tables Tab -->
+            <div class="tab-pane fade" id="contingency" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="form-select mb-3" id="contingencyCol1">
+                            <option value="">Seleccione primera columna</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select mb-3" id="contingencyCol2">
+                            <option value="">Seleccione segunda columna</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary" id="generateContingency">Generar Tabla</button>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div id="contingencyResults"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plots Tab -->
+            <div class="tab-pane fade" id="plots" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-select mb-3" id="plotType">
+                            <option value="bar">Gráfico de Barras</option>
+                            <option value="pie">Gráfico Circular</option>
+                            <option value="scatter">Gráfico de Dispersión</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select mb-3" id="plotXCol">
+                            <option value="">Seleccione columna X</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select mb-3" id="plotYCol">
+                            <option value="">Seleccione columna Y (opcional)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary" id="generatePlot">Generar Gráfico</button>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div id="plotResults" class="plot-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlation Tab -->
+            <div class="tab-pane fade" id="correlation" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <button class="btn btn-primary mb-3" id="generateCorrelation">Generar Matriz de Correlación</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="correlationResults" class="plot-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+        <div class="container">
+            Análisis Exploratorio de Datos - 2024
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
